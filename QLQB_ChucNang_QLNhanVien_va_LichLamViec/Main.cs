@@ -103,6 +103,17 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 btnThongTinCaNhan.Location = new Point(pnlMenuHeader.Width - 300, 15);
             };
         }
+        public void SwitchToTab(string tabName)
+        {
+            foreach (TabPage tab in tabControl.TabPages)
+            {
+                if (tab.Name == tabName)
+                {
+                    tabControl.SelectedTab = tab;
+                    return;
+                }
+            }
+        }
         private void ForceLogoutAndRelogin(string message)
         {
             try
@@ -277,6 +288,12 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         }
 
 
+        private void btnTrovemenu_Click(object sender, EventArgs e)
+        {
+            frmMenu frm = new frmMenu();
+            frm.Visible = true;
+            this.Hide();
+        }
         private void CheckPermissions()
         {
             // Hàm này giờ chỉ để kiểm tra, UI đã được xử lý ở frmMain_Load
@@ -1651,6 +1668,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         #region Lịch Làm Việc
         private bool isEditingCa = false;
         private string editingMaCaCu = "";
+
 
         private void LoadLichLamViecData()
         {

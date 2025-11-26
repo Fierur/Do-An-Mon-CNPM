@@ -1,5 +1,6 @@
 ﻿using Microsoft.Office.Interop.Excel;
 using Microsoft.VisualBasic;
+using QLQB_ChucNang_QLNhanVien_va_LichLamViec.Database;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,12 +21,12 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 {
     public partial class QuanLyHoaDon : Form
     {
-        private string connectionString;
+        //private string connectionString;
         private string maBanHienTai = "";
         private decimal tongTien = 0;
-        private string currentUser = "";
-        private string maQuyen = "";
-        private bool isQuanLy = false;
+        //private string MaNV = "";
+        //private string MaQuyen = "";
+        //private bool IsAdmin = false;
 
         // Biến cho in ấn
         private PrintDocument printDocument;
@@ -34,30 +35,63 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         private string sdtKhachHangIn = "";
         private string tenNhanVienIn = "";
 
-        public QuanLyHoaDon(string userName, string userRole)
+        public QuanLyHoaDon()/*(string userName, string userRole)*/
         {
             InitializeComponent();
-            connectionString = "Data Source=TRUNGPC;Initial Catalog=QuanLyQuanBar;Integrated Security=True";
-            currentUser = userName;
-            maQuyen = userRole;
-            isQuanLy = (userRole == "Q01");
+            //connectionString = "Data Source=26.71.28.188\\MSSQL16SERVER;Initial Catalog=QuanLyQuanBar";
+            //// Lấy thông tin từ SessionInfo
+            //currentUser  = SessionInfo.MaNV;        // Hoặc SessionInfo.TenNV tùy nhu cầu
+            //maQuyen  = SessionInfo.SessionInfo.MaQuyen;
+            //isQuanLy  = SessionInfo.IsAdmin;        // Hoặc (SessionInfo.SessionInfo.MaQuyen == "Q01")
+            if (string.IsNullOrEmpty(SessionInfo.MaNV))
+            {
+                MessageBox.Show("Chưa đăng nhập! Vui lòng đăng nhập lại.",
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+                return;
+            }
 
             printDocument = new PrintDocument();
             printDocument.PrintPage += new PrintPageEventHandler(PrintDocument_PrintPage);
         }
+
+        //private string GetConnectionString()
+        //{
+        //    // Kiểm tra xem đã đăng nhập chưa
+        //    if (string.IsNullOrEmpty(SessionInfo.MaNV))
+        //    {
+        //        throw new Exception("Chưa đăng nhập! Vui lòng đăng nhập lại.");
+        //    }
+
+        //    // Sử dụng connection string từ DatabaseConnection
+        //    using (var conn = DatabaseConnection.GetConnection())
+        //    {
+        //        return conn.ConnectionString;
+        //    }
+        //}
+
         private void FormQuanLyBan_Load_1(object sender, EventArgs e)
         {
             try
             {
+                // KIỂM TRA ĐĂNG NHẬP TRƯỚC
+                if (string.IsNullOrEmpty(SessionInfo.MaNV))
+                {
+                    MessageBox.Show("Chưa đăng nhập! Vui lòng đăng nhập lại.",
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.Close();
+                    return;
+                }
+
                 // Kiểm tra kết nối và dữ liệu
                 KiemTraKetNoiVaDuLieu();
 
                 // HIỂN THỊ THÔNG TIN USER
-                string tenQuyen = maQuyen == "Q01" ? "Quản lý" :
-                                 maQuyen == "Q02" ? "Phục vụ" :
-                                 maQuyen == "Q03" ? "Thu ngân" : "Nhân viên";
+                string tenQuyen = SessionInfo.MaQuyen == "Q01" ? "Quản lý" :
+                             SessionInfo.MaQuyen == "Q02" ? "Phục vụ" :
+                             SessionInfo.MaQuyen == "Q03" ? "Thu ngân" : "Nhân viên";
 
-                this.Text = $"QUẢN LÝ QUÁN BAR - {tenQuyen} - User: {currentUser}";
+                this.Text = $"QUẢN LÝ QUÁN BAR - {tenQuyen} - User: {SessionInfo.MaNV}";
 
                 PhanQuyenTheoUser();
                 LoadComboBoxTrangThai();
@@ -78,10 +112,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
-
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     // Kiểm tra bàn có dữ liệu không
                     string checkBan = "SELECT COUNT(*) FROM Ban";
                     SqlCommand cmdBan = new SqlCommand(checkBan, conn);
@@ -108,10 +142,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         private void PhanQuyenTheoUser()
         {
             // DEBUG - Xem quyền hiện tại
-            System.Diagnostics.Debug.WriteLine($"Phân quyền: User={currentUser}, Quyền={maQuyen}");
+            System.Diagnostics.Debug.WriteLine($"Phân quyền: User={SessionInfo.MaNV}, Quyền={SessionInfo.MaQuyen}");
 
             // --- QUYỀN QUẢN LÝ (Q01) - Full quyền ---
-            if (maQuyen == "Q01")
+            if (SessionInfo.MaQuyen == "Q01" || SessionInfo.IsAdmin)
             {
                 btnThemMoi.Enabled = true;
                 btnXoaBan.Enabled = true;
@@ -129,7 +163,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 btnCapNhat.Visible = true;
             }
             // --- QUYỀN PHỤC VỤ (Q02) ---
-            else if (maQuyen == "Q02")
+            else if (SessionInfo.MaQuyen == "Q02")
             {
                 btnThemMoi.Enabled = false;
                 btnXoaBan.Enabled = false;
@@ -149,12 +183,12 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
                 try
                 {
-                    cboNhanVien.SelectedValue = currentUser;
+                    cboNhanVien.SelectedValue = SessionInfo.MaNV;
                 }
                 catch { }
             }
             // --- QUYỀN THU NGÂN (Q03) ---
-            else if (maQuyen == "Q03")
+            else if (SessionInfo.MaQuyen == "Q03")
             {
                 btnThemMoi.Enabled = false;
                 btnXoaBan.Enabled = false;
@@ -209,8 +243,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     var query = @"SELECT MaNV, TenNV FROM NhanVien 
                                 WHERE MaQuyen IN ('Q01','Q02','Q03') ORDER BY TenNV";
                     var da = new SqlDataAdapter(query, conn);
@@ -233,8 +269,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     var query = "SELECT MaKH, TenKH, SDT FROM KhachHang ORDER BY TenKH";
                     var da = new SqlDataAdapter(query, conn);
                     var dt = new DataTable();
@@ -267,9 +305,11 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 flpTrong.Controls.Clear();
                 flpCoKhach.Controls.Clear();
 
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    // Đảm bảo kết nối đang mở
+                    if (conn.State != ConnectionState.Open)
+                        conn.Open();
                     string query = "SELECT MaBan, TrangThaiBan FROM Ban ORDER BY MaBan";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
@@ -383,9 +423,11 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             {
                 flpChucNang.Controls.Clear();
 
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    // Đảm bảo kết nối đang mở
+                    if (conn.State != ConnectionState.Open)
+                        conn.Open();
 
                     string query = @"SELECT k.MaMon, k.TenMon, 
                            (SELECT TOP 1 GiaMoi FROM CapNhatGia 
@@ -450,9 +492,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State != ConnectionState.Open)
+                        conn.Open();
                     var query = @"SELECT b.MaBan, b.TrangThaiBan, b.MaNV, db.MaKH,
                     db.NgayDat, kh.TenKH, kh.SDT, b.TongTien, b.NgayThanhToan
                     FROM Ban b
@@ -530,8 +573,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
+                    //if (conn.State == ConnectionState.Closed)
+                    //    conn.Open();
                     var cmd = new SqlCommand("sp_ThemMonVaoHoaDon", conn)
                     {
                         CommandType = CommandType.StoredProcedure
@@ -560,9 +605,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
 
                     // Load tổng tiền
                     var cmdTongTien = new SqlCommand("SELECT dbo.fn_TinhTongTienBan(@MaBan)", conn);
@@ -635,9 +681,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
 
                     // Sử dụng stored procedure để thanh toán
                     var cmd = new SqlCommand("sp_ThanhToanHoaDon", conn)
@@ -729,9 +776,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     var query = @"UPDATE Ban SET TrangThaiBan = N'Đã đặt', MaNV = @MaNV 
                                 WHERE MaBan = @MaBan";
 
@@ -761,9 +809,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     var query = @"UPDATE Ban SET TrangThaiBan = @TrangThai, MaNV = @MaNV 
                                 WHERE MaBan = @MaBan";
 
@@ -796,14 +845,15 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             bool coQuyenXoa = false;
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     var checkQuery = @"SELECT COUNT(*) 
                               FROM NhanVien 
                               WHERE MaNV = @MaNV AND MaQuyen = 'Q01'";
                     var cmd = new SqlCommand(checkQuery, conn);
-                    cmd.Parameters.AddWithValue("@MaNV", currentUser);
+                    cmd.Parameters.AddWithValue("@MaNV", SessionInfo.MaNV);
                     coQuyenXoa = (int)cmd.ExecuteScalar() > 0;
                 }
             }
@@ -813,10 +863,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 return;
             }
 
-            if (!coQuyenXoa)
+            if (!SessionInfo.IsAdmin)
             {
-                MessageBox.Show("Chỉ quản lý mới có quyền xóa bàn!", "Cảnh báo",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Chỉ quản lý mới có quyền xóa bàn!",
+                    "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -827,9 +877,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             {
                 try
                 {
-                    using (var conn = new SqlConnection(connectionString))
+                    using (var conn = DatabaseConnection.OpenConnection())
                     {
-                        conn.Open();
+                        if (conn.State == ConnectionState.Closed)
+                            conn.Open();
 
                         // Kiểm tra trạng thái bàn
                         var checkTT = new SqlCommand("SELECT TrangThaiBan FROM Ban WHERE MaBan = @MaBan", conn);
@@ -890,7 +941,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
         private void btnThemMoi_Click(object sender, EventArgs e)
         {
-            if (!isQuanLy)
+            if (!SessionInfo.IsAdmin)
             {
                 MessageBox.Show("Chỉ quản lý mới có quyền thêm bàn!");
                 return;
@@ -901,9 +952,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.OpenConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     var query = "INSERT INTO Ban (MaBan, TrangThaiBan) VALUES (@MaBan, N'Trống')";
                     var cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@MaBan", maBanMoi.Trim());
@@ -934,9 +986,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
 
                     // SỬA QUERY - Lấy giá mới nhất từ CapNhatGia
                     var query = @"SELECT 
@@ -1187,8 +1240,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     var query = "SELECT MaKH, TenKH, SDT FROM KhachHang ORDER BY TenKH";
                     var da = new SqlDataAdapter(query, conn);
                     var dt = new DataTable();
@@ -1213,9 +1268,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     var query = "INSERT INTO KhachHang(TenKH, SDT) VALUES(@Ten, @SDT)";
                     var cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@Ten", txtTenKH.Text.Trim());
@@ -1244,9 +1300,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
             try
             {
-                using (var conn = new SqlConnection(connectionString))
+                using (var conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     var query = "UPDATE KhachHang SET TenKH=@Ten, SDT=@SDT WHERE MaKH=@Ma";
                     var cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@Ma", txtMaKH.Text.Trim());
@@ -1281,9 +1338,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             {
                 try
                 {
-                    using (var conn = new SqlConnection(connectionString))
+                    using (var conn = DatabaseConnection.GetConnection())
                     {
-                        conn.Open();
+                        if (conn.State == ConnectionState.Closed)
+                            conn.Open();
                         var query = "DELETE FROM KhachHang WHERE MaKH=@Ma";
                         var cmd = new SqlCommand(query, conn);
                         cmd.Parameters.AddWithValue("@Ma", txtMaKH.Text.Trim());
@@ -1328,8 +1386,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             {
                 try
                 {
-                    using (var conn = new SqlConnection(connectionString))
+                    using (var conn = DatabaseConnection.GetConnection())
                     {
+                        if (conn.State == ConnectionState.Closed)
+                            conn.Open();
                         var query = "SELECT MaKH, TenKH, SDT FROM KhachHang WHERE TenKH LIKE @TuKhoa OR SDT LIKE @TuKhoa ORDER BY TenKH";
                         var da = new SqlDataAdapter(query, conn);
                         da.SelectCommand.Parameters.AddWithValue("@TuKhoa", $"%{tuKhoa}%");
@@ -1372,11 +1432,11 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             dtpNgayDat.Value = DateTime.Now;
             dgvHoaDon.DataSource = null;
 
-            if (maQuyen == "Q02")
+            if (SessionInfo.MaQuyen == "Q02")
             {
                 try
                 {
-                    cboNhanVien.SelectedValue = currentUser;
+                    cboNhanVien.SelectedValue = SessionInfo.MaNV;
                 }
                 catch
                 {
@@ -1416,9 +1476,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             {
                 try
                 {
-                    using (var conn = new SqlConnection(connectionString))
+                    using (var conn = DatabaseConnection.GetConnection())
                     {
-                        conn.Open();
+                        if (conn.State == ConnectionState.Closed)
+                            conn.Open();
                         var query = "SELECT SDT FROM KhachHang WHERE MaKH = @MaKH";
                         var cmd = new SqlCommand(query, conn);
                         cmd.Parameters.AddWithValue("@MaKH", cboKhachHang.SelectedValue);
@@ -1532,9 +1593,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
-                using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlConnection conn = DatabaseConnection.GetConnection())
                 {
-                    conn.Open();
+                    if (conn.State == ConnectionState.Closed)
+                        conn.Open();
                     SqlCommand cmd = new SqlCommand("sp_ThongKeDoanhThu", conn);
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@TuNgay", tuNgay);
@@ -1705,9 +1767,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                     // Lấy tên món từ dòng được chọn
                     string tenMon = dgvHoaDon.SelectedRows[0].Cells["Tên Món"].Value.ToString();
 
-                    using (var conn = new SqlConnection(connectionString))
+                    using (var conn = DatabaseConnection.GetConnection())
                     {
-                        conn.Open();
+                        if (conn.State == ConnectionState.Closed)
+                            conn.Open();
 
                         // Lấy MaMon từ TenMon
                         var getMaMon = new SqlCommand("SELECT MaMon FROM Kho WHERE TenMon = @TenMon", conn);

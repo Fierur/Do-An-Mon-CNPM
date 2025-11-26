@@ -6,7 +6,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec.Database
 {
     public class DatabaseConnection
     {                                       //26.71.28.188\\MSSQL16SERVER
-        private static string serverName = "26.71.28.188";
+        private static string serverName = "26.71.28.188\\MSSQL16SERVER";
         private static string databaseName = "QuanLyQuanBar";
         private static string connectionString;
         private static SqlConnection currentConnection = null;
