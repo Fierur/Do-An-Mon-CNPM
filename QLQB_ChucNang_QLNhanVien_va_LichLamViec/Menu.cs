@@ -16,6 +16,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         public frmMenu()
         {
             InitializeComponent();
+            //btnXemPhieuNhap.MouseEnter += MenuButton_MouseEnter;
+            //btnXemPhieuNhap.MouseLeave += MenuButton_MouseLeave;
+
+            //this.Controls.Add(btnXemPhieuNhap);
         }
         private void frmMenu_Load(object sender, EventArgs e)
         {
@@ -36,13 +40,64 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 btnTinhLuong.Visible = false;
                 btnCaLam.Visible = false;
                 btnQLKho.Visible = false;
+                btnXemPhieuNhap.Visible = false;
 
                 // Có thể cho phép nhân viên xem bàn và hóa đơn
                 // btnQLBanHoaDon.Enabled = true;
             }
+            if (SessionInfo.MaQuyen == "Q04")
+            {
+                btnQLNhanVien.Visible = false;
+                btnTinhLuong.Visible = false;
+                btnCaLam.Visible = false;
+                btnQLKho.Visible = false;
+                btnQLBanHoaDon.Visible = false;
+            }
+            if (SessionInfo.MaQuyen == "Q05")
+            {
+                btnQLNhanVien.Visible = false;
+                btnTinhLuong.Visible = false;
+                btnCaLam.Visible = false;
+                btnQLKho.Visible = false;
+                btnQLBanHoaDon.Visible = false;
+            }
+            
         }
 
         #region Event Handlers cho các nút menu
+        private void btnXemPhieuNhap_Click(object sender, EventArgs e)
+        {
+            //try
+            //{
+            //    // Hiển thị form nhập mã phiếu nhập
+            //    using (FormNhapMaPhieuNhap formNhapMa = new FormNhapMaPhieuNhap())
+            //    {
+            //        if (formNhapMa.ShowDialog() == DialogResult.OK)
+            //        {
+            //            string maPhieuNhap = formNhapMa.MaPhieuNhap;
+
+            //            if (!string.IsNullOrEmpty(maPhieuNhap))
+            //            {
+            //                // Mở form chi tiết phiếu nhập
+            //                FormChiTietPhieuNhap formCT = new FormChiTietPhieuNhap(
+            //                    maPhieuNhap,
+            //                    DatabaseConnection.ConnectionString);
+            //                formCT.ShowDialog();
+            //            }
+            //            else
+            //            {
+            //                MessageBox.Show("Vui lòng nhập mã phiếu nhập!", "Cảnh báo",
+            //                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Lỗi mở form chi tiết phiếu nhập: " + ex.Message, "Lỗi",
+            //        MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+        }
         private void btnQLNhanVien_Click(object sender, EventArgs e)
         {
             // Mở form Main
@@ -50,11 +105,12 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             frm.Show();
             this.Hide();
 
+            frm.Shown += (s, args) => { frm.SwitchToTab("tabQuanLyNV"); };
             // Khi đóng form Main, hiển thị lại form Menu
             frm.FormClosed += (s, args) =>
-            {
-                this.Show();
-            };
+        {
+            this.Show();
+        };
         }
 
         private void btnChamCong_Click(object sender, EventArgs e)
@@ -64,6 +120,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             frm.Show();
             this.Hide();
 
+            frm.Shown += (s, args) => { frm.SwitchToTab("tabChamCong"); };
             // Sau khi form load xong, chuyển tab
             frm.Load += (s, args) =>
             {
@@ -83,7 +140,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             frm.Show();
             this.Hide();
 
-            frm.Load += (s, args) =>
+            frm.Shown += (s, args) =>
             {
                 frm.SwitchToTab("tabTinhLuong");
             };
@@ -101,7 +158,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             frm.Show();
             this.Hide();
 
-            frm.Load += (s, args) =>
+            frm.Shown += (s, args) =>
             {
                 frm.SwitchToTab("tabLichLamViec");
             };

@@ -190,25 +190,30 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             // --- QUYỀN THU NGÂN (Q03) ---
             else if (SessionInfo.MaQuyen == "Q03")
             {
-                btnThemMoi.Enabled = false;
-                btnXoaBan.Enabled = false;
-                btnQuanLyKH.Enabled = true;
+                btnThemMoi.Enabled = true;
+                btnXoaBan.Visible = false;
+                btnQuanLyKH.Visible = true;
                 cboNhanVien.Enabled = false;
 
                 // ẨN thêm/xóa món
                 btnThemMon.Visible = false;
+                btnThemMon.Enabled = false;
                 btnXoaMon.Visible = false;
+                btnThemMon.Enabled = false;
 
                 // HIỆN thanh toán, in, xuất
+                btnThanhToan.Enabled = true;
                 btnThanhToan.Visible = true;
                 btnInHoaDon.Visible = true;
                 btnXuatExcel.Visible = false;
+                btnThongKe.Visible = true;
 
                 // ẨN các nút khác
                 btnDatBan.Visible = false;
                 btnGopBan.Visible = false;
+                btnThongKe.Visible = true;
                 btnThongKe.Visible = false;
-                btnCapNhat.Visible = false;
+                btnCapNhat.Visible = true;
             }
             // --- QUYỀN KHÁC ---
             else
@@ -249,7 +254,8 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                         conn.Open();
                     var query = @"SELECT MaNV, TenNV FROM NhanVien 
                                 WHERE MaQuyen IN ('Q01','Q02','Q03') ORDER BY TenNV";
-                    var da = new SqlDataAdapter(query, conn);
+                    var query1 = @"SELECT * FROM vw_ThongTinCaNhan WHERE MaQuyen IN ('Q01','Q02','Q03') ORDER BY TenNV";
+                    var da = new SqlDataAdapter(query1, conn);
                     var dt = new DataTable();
                     da.Fill(dt);
 
@@ -488,6 +494,50 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        //private void LoadThongTinBan(string maBan)
+        //{
+        //    try
+        //    {
+        //        using (var conn = DatabaseConnection.GetConnection())
+        //        {
+        //            if (conn.State != ConnectionState.Open)
+        //                conn.Open();
+        //            var query = @"SELECT b.MaBan, b.TrangThaiBan, b.MaNV, db.MaKH,
+        //            db.NgayDat, kh.TenKH, kh.SDT, b.TongTien, b.NgayThanhToan
+        //            FROM Ban b
+        //            LEFT JOIN DatBan db ON b.MaDatBan = db.MaDatBan
+        //            LEFT JOIN KhachHang kh ON db.MaKH = kh.MaKH
+        //            WHERE b.MaBan = @MaBan";
+
+        //            var cmd = new SqlCommand(query, conn);
+        //            cmd.Parameters.AddWithValue("@MaBan", maBan);
+        //            var reader = cmd.ExecuteReader();
+
+        //            if (reader.Read())
+        //            {
+        //                txtMaBan.Text = reader["MaBan"].ToString();
+
+        //                // Cập nhật combobox trạng thái
+        //                var trangThai = reader["TrangThaiBan"].ToString();
+        //                cboTrangThai.SelectedItem = trangThai;
+
+        //                // Hiển thị thông báo nếu đã thanh toán
+        //                if (trangThai == "Đã thanh toán")
+        //                {
+        //                    MessageBox.Show("Bàn này đã thanh toán!", "Thông báo",
+        //                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //                }
+
+        //                // ... phần còn lại giữ nguyên
+        //            }
+        //            reader.Close();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("Lỗi tải thông tin bàn: " + ex.Message);
+        //    }
+        //}
         private void LoadThongTinBan(string maBan)
         {
             try
@@ -496,42 +546,95 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 {
                     if (conn.State != ConnectionState.Open)
                         conn.Open();
-                    var query = @"SELECT b.MaBan, b.TrangThaiBan, b.MaNV, db.MaKH,
-                    db.NgayDat, kh.TenKH, kh.SDT, b.TongTien, b.NgayThanhToan
-                    FROM Ban b
-                    LEFT JOIN DatBan db ON b.MaDatBan = db.MaDatBan
-                    LEFT JOIN KhachHang kh ON db.MaKH = kh.MaKH
-                    WHERE b.MaBan = @MaBan";
+
+                    var query = @"SELECT b.MaBan, b.TrangThaiBan, b.MaNV, db.MaKH, db.NgayDat, kh.TenKH, kh.SDT, b.TongTien, b.NgayThanhToan 
+                        FROM Ban b 
+                        LEFT JOIN DatBan db ON b.MaDatBan = db.MaDatBan 
+                        LEFT JOIN KhachHang kh ON db.MaKH = kh.MaKH 
+                        WHERE b.MaBan = @MaBan";
 
                     var cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@MaBan", maBan);
-                    var reader = cmd.ExecuteReader();
 
-                    if (reader.Read())
+                    // Sử dụng using để đảm bảo reader được đóng đúng cách
+                    using (var reader = cmd.ExecuteReader())
                     {
-                        txtMaBan.Text = reader["MaBan"].ToString();
-
-                        // Cập nhật combobox trạng thái
-                        var trangThai = reader["TrangThaiBan"].ToString();
-                        cboTrangThai.SelectedItem = trangThai;
-
-                        // Hiển thị thông báo nếu đã thanh toán
-                        if (trangThai == "Đã thanh toán")
+                        if (reader.Read())
                         {
-                            MessageBox.Show("Bàn này đã thanh toán!", "Thông báo",
-                                          MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
+                            // Đọc tất cả dữ liệu cần thiết trước khi đóng reader
+                            string maBanValue = reader["MaBan"].ToString();
+                            string trangThai = reader["TrangThaiBan"].ToString();
+                            object maNVValue = reader["MaNV"];
+                            object maKHValue = reader["MaKH"];
+                            object ngayDatValue = reader["NgayDat"];
+                            object tenKHValue = reader["TenKH"];
+                            object sdtValue = reader["SDT"];
+                            object tongTienValue = reader["TongTien"];
 
-                        // ... phần còn lại giữ nguyên
+                            // Đóng reader trước khi thao tác với controls
+                            reader.Close();
+
+                            // Gán giá trị vào controls
+                            txtMaBan.Text = maBanValue;
+                            cboTrangThai.SelectedItem = trangThai;
+
+                            if (ngayDatValue != DBNull.Value)
+                            {
+                                dtpNgayDat.Value = Convert.ToDateTime(ngayDatValue);
+                            }
+
+                            if (maKHValue != DBNull.Value)
+                            {
+                                string maKH = maKHValue.ToString();
+                                cboKhachHang.SelectedValue = maKH;
+
+                                string tenKH = tenKHValue?.ToString() ?? "Khách lẻ";
+                                string sdt = sdtValue?.ToString() ?? "";
+                                txtSDT.Text = sdt;
+
+                                //HIỂN THỊ THÔNG TIN KHÁCH HÀNG KHI BÀN "ĐÃ ĐẶT" 
+                                if (trangThai == "Đã đặt" || trangThai == "Có khách")
+                                {
+                                    string thongTinKH = $"Khách hàng: {tenKH}\n" +
+                                                        $"SĐT: {sdt}\n" +
+                                                        $"Ngày đặt: {dtpNgayDat.Value:dd/MM/yyyy}";
+                                    MessageBox.Show(thongTinKH, $"THÔNG TIN ĐẶT BÀN - {maBan}",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                }
+                            }
+
+                            // Hiển thị nhân viên phụ trách 
+                            if (maNVValue != DBNull.Value)
+                            {
+                                cboNhanVien.SelectedValue = maNVValue.ToString();
+                            }
+
+                            // Hiển thị tổng tiền 
+                            if (tongTienValue != DBNull.Value)
+                            {
+                                decimal tongTien = Convert.ToDecimal(tongTienValue);
+                                txtTongTien.Text = tongTien.ToString("N0") + " đ";
+                            }
+
+                            // Hiển thị thông báo nếu đã thanh toán 
+                            if (trangThai == "Đã thanh toán")
+                            {
+                                MessageBox.Show("Bàn này đã thanh toán!", "Thông báo",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                        }
+                        else
+                        {
+                            reader.Close();
+                        }
                     }
-                    reader.Close();
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải thông tin bàn: " + ex.Message);
             }
-        }
+        }        
         #endregion
 
         #region XỬ LÝ SỰ KIỆN BÀN VÀ MÓN
@@ -852,7 +955,8 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                     var checkQuery = @"SELECT COUNT(*) 
                               FROM NhanVien 
                               WHERE MaNV = @MaNV AND MaQuyen = 'Q01'";
-                    var cmd = new SqlCommand(checkQuery, conn);
+                    var checkQuery1 = @"SELECT * FROM vw_ThongTinCaNhan WHERE MaNV = @MaNV AND MaQuyen = 'Q01'";
+                    var cmd = new SqlCommand(checkQuery1, conn);
                     cmd.Parameters.AddWithValue("@MaNV", SessionInfo.MaNV);
                     coQuyenXoa = (int)cmd.ExecuteScalar() > 0;
                 }
@@ -1498,95 +1602,114 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
         private void btnThongKe_Click(object sender, EventArgs e)
         {
-            // Tạo form thống kê đơn giản
-            Form formThongKe = new Form();
-            formThongKe.Text = "THỐNG KÊ DOANH THU";
-            formThongKe.Size = new System.Drawing.Size(700, 500);
-            formThongKe.StartPosition = FormStartPosition.CenterScreen;
-            formThongKe.MaximizeBox = false;
-            formThongKe.FormBorderStyle = FormBorderStyle.FixedDialog;
+            //        // Tạo form thống kê đơn giản
+            //        Form formThongKe = new Form();
+            //        formThongKe.Text = "THỐNG KÊ DOANH THU";
+            //        formThongKe.Size = new System.Drawing.Size(700, 500);
+            //        formThongKe.StartPosition = FormStartPosition.CenterScreen;
+            //        formThongKe.MaximizeBox = false;
+            //        formThongKe.FormBorderStyle = FormBorderStyle.FixedDialog;
 
-            // Tạo controls
-            DateTimePicker dtpTuNgay = new DateTimePicker();
-            DateTimePicker dtpDenNgay = new DateTimePicker();
-            System.Windows.Forms.Button btnThongKe = new System.Windows.Forms.Button();
-            System.Windows.Forms.Button btnXuatExcel = new System.Windows.Forms.Button();
-            System.Windows.Forms.Button btnDong = new System.Windows.Forms.Button();
-            DataGridView dgvThongKe = new DataGridView();
-            System.Windows.Forms.Label lblTongDoanhThu = new System.Windows.Forms.Label();
-            System.Windows.Forms.Label label1 = new System.Windows.Forms.Label();
-            System.Windows.Forms.Label label2 = new System.Windows.Forms.Label();
+            //        // Tạo controls
+            //        DateTimePicker dtpTuNgay = new DateTimePicker();
+            //        DateTimePicker dtpDenNgay = new DateTimePicker();
+            //        System.Windows.Forms.Button btnThongKe = new System.Windows.Forms.Button();
+            //        System.Windows.Forms.Button btnXuatExcel = new System.Windows.Forms.Button();
+            //        System.Windows.Forms.Button btnDong = new System.Windows.Forms.Button();
+            //        DataGridView dgvThongKe = new DataGridView();
+            //        System.Windows.Forms.Label lblTongDoanhThu = new System.Windows.Forms.Label();
+            //        System.Windows.Forms.Label label1 = new System.Windows.Forms.Label();
+            //        System.Windows.Forms.Label label2 = new System.Windows.Forms.Label();
 
-            // Đặt vị trí và kích thước
-            dtpTuNgay.Location = new System.Drawing.Point(80, 20);
-            dtpTuNgay.Size = new System.Drawing.Size(120, 20);
-            dtpTuNgay.Value = DateTime.Now.AddDays(-7);
+            //        // Đặt vị trí và kích thước
+            //        dtpTuNgay.Location = new System.Drawing.Point(80, 20);
+            //        dtpTuNgay.Size = new System.Drawing.Size(120, 20);
+            //        dtpTuNgay.Value = DateTime.Now.AddDays(-7);
 
-            dtpDenNgay.Location = new System.Drawing.Point(280, 20);
-            dtpDenNgay.Size = new System.Drawing.Size(120, 20);
-            dtpDenNgay.Value = DateTime.Now;
+            //        dtpDenNgay.Location = new System.Drawing.Point(280, 20);
+            //        dtpDenNgay.Size = new System.Drawing.Size(120, 20);
+            //        dtpDenNgay.Value = DateTime.Now;
 
-            btnThongKe.Location = new System.Drawing.Point(420, 18);
-            btnThongKe.Size = new System.Drawing.Size(80, 25);
-            btnThongKe.Text = "Thống kê";
-            btnThongKe.BackColor = System.Drawing.Color.LightBlue;
+            //        btnThongKe.Location = new System.Drawing.Point(420, 18);
+            //        btnThongKe.Size = new System.Drawing.Size(80, 25);
+            //        btnThongKe.Text = "Thống kê";
+            //        btnThongKe.BackColor = System.Drawing.Color.LightBlue;
 
-            btnXuatExcel.Location = new System.Drawing.Point(510, 18);
-            btnXuatExcel.Size = new System.Drawing.Size(80, 25);
-            btnXuatExcel.Text = "Xuất Excel";
-            btnXuatExcel.BackColor = System.Drawing.Color.LightGreen;
+            //        btnXuatExcel.Location = new System.Drawing.Point(510, 18);
+            //        btnXuatExcel.Size = new System.Drawing.Size(80, 25);
+            //        btnXuatExcel.Text = "Xuất Excel";
+            //        btnXuatExcel.BackColor = System.Drawing.Color.LightGreen;
 
-            btnDong.Location = new System.Drawing.Point(600, 18);
-            btnDong.Size = new System.Drawing.Size(60, 25);
-            btnDong.Text = "Đóng";
-            btnDong.BackColor = System.Drawing.Color.LightCoral;
+            //        btnDong.Location = new System.Drawing.Point(600, 18);
+            //        btnDong.Size = new System.Drawing.Size(60, 25);
+            //        btnDong.Text = "Đóng";
+            //        btnDong.BackColor = System.Drawing.Color.LightCoral;
 
-            label1.Location = new System.Drawing.Point(20, 23);
-            label1.Size = new System.Drawing.Size(60, 20);
-            label1.Text = "Từ ngày:";
+            //        label1.Location = new System.Drawing.Point(20, 23);
+            //        label1.Size = new System.Drawing.Size(60, 20);
+            //        label1.Text = "Từ ngày:";
 
-            label2.Location = new System.Drawing.Point(220, 23);
-            label2.Size = new System.Drawing.Size(60, 20);
-            label2.Text = "Đến ngày:";
+            //        label2.Location = new System.Drawing.Point(220, 23);
+            //        label2.Size = new System.Drawing.Size(60, 20);
+            //        label2.Text = "Đến ngày:";
 
-            dgvThongKe.Location = new System.Drawing.Point(20, 60);
-            dgvThongKe.Size = new System.Drawing.Size(650, 350);
-            dgvThongKe.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dgvThongKe.ReadOnly = true;
+            //        dgvThongKe.Location = new System.Drawing.Point(20, 60);
+            //        dgvThongKe.Size = new System.Drawing.Size(650, 350);
+            //        dgvThongKe.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            //        dgvThongKe.ReadOnly = true;
 
-            lblTongDoanhThu.Location = new System.Drawing.Point(20, 420);
-            lblTongDoanhThu.Size = new System.Drawing.Size(400, 30);
-            lblTongDoanhThu.Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold);
-            lblTongDoanhThu.ForeColor = System.Drawing.Color.Red;
+            //        lblTongDoanhThu.Location = new System.Drawing.Point(20, 420);
+            //        lblTongDoanhThu.Size = new System.Drawing.Size(400, 30);
+            //        lblTongDoanhThu.Font = new System.Drawing.Font("Arial", 12, System.Drawing.FontStyle.Bold);
+            //        lblTongDoanhThu.ForeColor = System.Drawing.Color.Red;
 
-            // Thêm controls vào form
-            formThongKe.Controls.AddRange(new Control[] {
-        dtpTuNgay, dtpDenNgay, btnThongKe, btnXuatExcel, btnDong,
-        dgvThongKe, lblTongDoanhThu, label1, label2
-    });
+            //        // Thêm controls vào form
+            //        formThongKe.Controls.AddRange(new Control[] {
+            //    dtpTuNgay, dtpDenNgay, btnThongKe, btnXuatExcel, btnDong,
+            //    dgvThongKe, lblTongDoanhThu, label1, label2
+            //});
 
-            // Sự kiện thống kê
-            btnThongKe.Click += (s, ev) =>
+            //        // Sự kiện thống kê
+            //        btnThongKe.Click += (s, ev) =>
+            //        {
+            //            LoadThongKeDoanhThu(dtpTuNgay.Value, dtpDenNgay.Value, dgvThongKe, lblTongDoanhThu);
+            //        };
+
+            //        // Sự kiện xuất Excel
+            //        btnXuatExcel.Click += (s, ev) =>
+            //        {
+            //            XuatExcelThongKe(dgvThongKe, dtpTuNgay.Value, dtpDenNgay.Value);
+            //        };
+
+            //        // Sự kiện đóng form
+            //        btnDong.Click += (s, ev) =>
+            //        {
+            //            formThongKe.Close();
+            //        };
+
+            //        // Load dữ liệu ban đầu
+            //        LoadThongKeDoanhThu(dtpTuNgay.Value, dtpDenNgay.Value, dgvThongKe, lblTongDoanhThu);
+
+            //        formThongKe.ShowDialog();
+
+            try
             {
-                LoadThongKeDoanhThu(dtpTuNgay.Value, dtpDenNgay.Value, dgvThongKe, lblTongDoanhThu);
-            };
+                //Kiểm tra quyền(nếu cần)
+                 if (!SessionInfo.IsAdmin && SessionInfo.MaQuyen != "Q03")
+                {
+                    MessageBox.Show("Bạn không có quyền xem lịch sử!", "Thông báo");
+                    return;
+                }
 
-            // Sự kiện xuất Excel
-            btnXuatExcel.Click += (s, ev) =>
+                // Mở form Lịch Sử Bàn
+                DSHoaDon formLichSu = new DSHoaDon();
+                formLichSu.ShowDialog();
+            }
+            catch (Exception ex)
             {
-                XuatExcelThongKe(dgvThongKe, dtpTuNgay.Value, dtpDenNgay.Value);
-            };
-
-            // Sự kiện đóng form
-            btnDong.Click += (s, ev) =>
-            {
-                formThongKe.Close();
-            };
-
-            // Load dữ liệu ban đầu
-            LoadThongKeDoanhThu(dtpTuNgay.Value, dtpDenNgay.Value, dgvThongKe, lblTongDoanhThu);
-
-            formThongKe.ShowDialog();
+                MessageBox.Show("Lỗi mở form lịch sử: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadThongKeDoanhThu(DateTime tuNgay, DateTime denNgay, DataGridView dgv, System.Windows.Forms.Label lblTong)

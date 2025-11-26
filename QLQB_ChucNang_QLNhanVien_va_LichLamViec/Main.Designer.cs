@@ -13,12 +13,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Label lblWelcome;
         private System.Windows.Forms.Button btnLogout;
-        private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabMenu;
-        private System.Windows.Forms.TabPage tabQuanLyNV;
-        private System.Windows.Forms.TabPage tabChamCong;
-        private System.Windows.Forms.TabPage tabTinhLuong;
-        private System.Windows.Forms.TabPage tabLichLamViec;
 
         // Menu chính
         private System.Windows.Forms.Panel pnlMenuMain;
@@ -719,6 +714,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabMenu = new System.Windows.Forms.TabPage();
             this.pnlMenuMain = new System.Windows.Forms.Panel();
+            this.btnTrovemenu = new System.Windows.Forms.Button();
             this.btnMenuQLNV = new System.Windows.Forms.Button();
             this.btnMenuChamCong = new System.Windows.Forms.Button();
             this.btnMenuTinhLuong = new System.Windows.Forms.Button();
@@ -727,7 +723,6 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.tabChamCong = new System.Windows.Forms.TabPage();
             this.tabTinhLuong = new System.Windows.Forms.TabPage();
             this.tabLichLamViec = new System.Windows.Forms.TabPage();
-            this.btnTrovemenu = new System.Windows.Forms.Button();
             this.pnlHeader.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabMenu.SuspendLayout();
@@ -809,6 +804,21 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.pnlMenuMain.Name = "pnlMenuMain";
             this.pnlMenuMain.Size = new System.Drawing.Size(1130, 594);
             this.pnlMenuMain.TabIndex = 0;
+            // 
+            // btnTrovemenu
+            // 
+            this.btnTrovemenu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(195)))), ((int)(((byte)(199)))));
+            this.btnTrovemenu.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnTrovemenu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnTrovemenu.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnTrovemenu.ForeColor = System.Drawing.Color.White;
+            this.btnTrovemenu.Location = new System.Drawing.Point(1013, 566);
+            this.btnTrovemenu.Name = "btnTrovemenu";
+            this.btnTrovemenu.Size = new System.Drawing.Size(120, 35);
+            this.btnTrovemenu.TabIndex = 6;
+            this.btnTrovemenu.Text = "Trở về menu";
+            this.btnTrovemenu.UseVisualStyleBackColor = false;
+            this.btnTrovemenu.Click += new System.EventHandler(this.btnTrovemenu_Click);
             // 
             // btnMenuQLNV
             // 
@@ -903,21 +913,6 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.tabLichLamViec.Text = "Lịch Làm Việc";
             this.tabLichLamViec.UseVisualStyleBackColor = true;
             // 
-            // btnTrovemenu
-            // 
-            this.btnTrovemenu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(189)))), ((int)(((byte)(195)))), ((int)(((byte)(199)))));
-            this.btnTrovemenu.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnTrovemenu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnTrovemenu.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnTrovemenu.ForeColor = System.Drawing.Color.White;
-            this.btnTrovemenu.Location = new System.Drawing.Point(1013, 566);
-            this.btnTrovemenu.Name = "btnTrovemenu";
-            this.btnTrovemenu.Size = new System.Drawing.Size(120, 35);
-            this.btnTrovemenu.TabIndex = 6;
-            this.btnTrovemenu.Text = "Trở về menu";
-            this.btnTrovemenu.UseVisualStyleBackColor = false;
-            this.btnTrovemenu.Click += new System.EventHandler(this.btnTrovemenu_Click);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -941,5 +936,10 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         #endregion
 
         private Button btnTrovemenu;
+        public TabControl tabControl;
+        public TabPage tabQuanLyNV;
+        public TabPage tabChamCong;
+        public TabPage tabTinhLuong;
+        public TabPage tabLichLamViec;
     }
 }

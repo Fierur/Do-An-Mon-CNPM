@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 {
@@ -23,6 +24,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         private System.Windows.Forms.Button btnCaLam;
         private System.Windows.Forms.Button btnQLBanHoaDon;
         private System.Windows.Forms.Button btnQLKho;
+        private System.Windows.Forms.Button btnXemPhieuNhap;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -56,6 +58,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnCaLam = new System.Windows.Forms.Button();
             this.btnQLBanHoaDon = new System.Windows.Forms.Button();
             this.btnQLKho = new System.Windows.Forms.Button();
+            //this.btnXemPhieuNhap = new System.Windows.Forms.Button();
             this.pnlHeader.SuspendLayout();
             this.pnlMain.SuspendLayout();
             this.SuspendLayout();
@@ -241,6 +244,25 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnQLKho.Click += new System.EventHandler(this.btnQLKho_Click);
             this.btnQLKho.MouseEnter += new System.EventHandler(this.MenuButton_MouseEnter);
             this.btnQLKho.MouseLeave += new System.EventHandler(this.MenuButton_MouseLeave);
+            //
+            // Khởi tạo nút Xem Phiếu Nhập
+            //
+            this.btnXemPhieuNhap = new System.Windows.Forms.Button();
+            this.btnXemPhieuNhap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(142)))), ((int)(((byte)(68)))), ((int)(((byte)(173)))));
+            this.btnXemPhieuNhap.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnXemPhieuNhap.FlatAppearance.BorderSize = 0;
+            this.btnXemPhieuNhap.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnXemPhieuNhap.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnXemPhieuNhap.ForeColor = System.Drawing.Color.White;
+            this.btnXemPhieuNhap.Location = new System.Drawing.Point(460, 520);
+            this.btnXemPhieuNhap.Name = "btnXemPhieuNhap";
+            this.btnXemPhieuNhap.Size = new System.Drawing.Size(280, 180);
+            this.btnXemPhieuNhap.TabIndex = 6;
+            this.btnXemPhieuNhap.Text = "📋\r\n\r\nXEM PHIẾU NHẬP";
+            this.btnXemPhieuNhap.UseVisualStyleBackColor = false;
+            this.btnXemPhieuNhap.Click += new System.EventHandler(this.btnXemPhieuNhap_Click);
+            this.btnXemPhieuNhap.MouseEnter += new System.EventHandler(this.MenuButton_MouseEnter);
+            this.btnXemPhieuNhap.MouseLeave += new System.EventHandler(this.MenuButton_MouseLeave);
             // 
             // frmMenu
             // 

@@ -1,13 +1,14 @@
-﻿using System;
+﻿using QLQB_ChucNang_QLNhanVien_va_LichLamViec.Database;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Data.SqlClient;
 
 namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 {
@@ -21,13 +22,20 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             this.maPhieuNhap = maPhieuNhap;
             this.connectionString = connString;
+            if (string.IsNullOrEmpty(SessionInfo.MaNV))
+            {
+                MessageBox.Show("Chưa đăng nhập! Vui lòng đăng nhập lại.",
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+                return;
+            }
             InitializeForm();
             LoadData();
         }
 
         private void InitializeForm()
         {
-            this.Text = "Chi Tiết Phiếu Nhập";
+            this.Text = $"Chi Tiết Phiếu Nhập - User: {SessionInfo.MaNV} ({SessionInfo.TenQuyen})";
             this.Size = new Size(950, 650);
             this.StartPosition = FormStartPosition.CenterParent;
             this.BackColor = Color.White;
@@ -56,6 +64,14 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
+                // Kiểm tra session trước khi load dữ liệu
+                if (string.IsNullOrEmpty(SessionInfo.MaNV))
+                {
+                    MessageBox.Show("Phiên đăng nhập đã hết hạn!",
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    this.Close();
+                    return;
+                }
                 dgvChiTiet.Rows.Clear();
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
@@ -81,9 +97,55 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                     }
                 }
             }
+            catch (SqlException sqlEx)
+            {
+                // Xử lý lỗi session bị kill
+                if (sqlEx.Message.Contains("session is in the kill state") ||
+                    sqlEx.Message.Contains("Login failed"))
+                {
+                    MessageBox.Show(
+                        "Phiên đăng nhập của bạn đã hết hạn.\n" +
+                        "Vui lòng đăng nhập lại.",
+                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                    // Quay về form login
+                    ForceLogout();
+                }
+                else
+                {
+                    MessageBox.Show("Lỗi tải chi tiết: " + sqlEx.Message,
+                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải chi tiết: " + ex.Message);
+                MessageBox.Show("Lỗi tải chi tiết: " + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ForceLogout()
+        {
+            try
+            {
+                SessionInfo.Clear();
+                DatabaseConnection.ClearConnection();
+
+                this.Hide();
+
+                frmLogin loginForm = new frmLogin();
+                loginForm.FormClosed += (s, args) =>
+                {
+                    this.Close();
+                    this.Dispose();
+                };
+                loginForm.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi đăng xuất: " + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Application.Exit();
             }
         }
     }
