@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,6 +48,48 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Database\DatabaseConnection.cs" />
+    <Compile Include="FormChiTietPhieuNhap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormChiTietPhieuNhap.Designer.cs">
+      <DependentUpon>FormChiTietPhieuNhap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormPhu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormPhu.Designer.cs">
+      <DependentUpon>FormPhu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormQuanLyKho.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormQuanLyKho.Designer.cs">
+      <DependentUpon>FormQuanLyKho.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormSuaMon.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSuaMon.Designer.cs">
+      <DependentUpon>FormSuaMon.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormThemMon.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormThemMon.Designer.cs">
+      <DependentUpon>FormThemMon.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Menu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Menu.Designer.cs">
+      <DependentUpon>Menu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="QuanLyHoaDon.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="QuanLyHoaDon.Designer.cs">
+      <DependentUpon>QuanLyHoaDon.cs</DependentUpon>
+    </Compile>
     <Compile Include="TinhLuongDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -85,6 +128,9 @@
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Menu.resx">
+      <DependentUpon>Menu.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="NhanVienDialog.resx">
       <DependentUpon>NhanVienDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -119,18 +165,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="UserControl\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\icon_nhanvien.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\icon_chamcong.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\icon_tinhluong.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\icon_lichlamviec.png" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Core">

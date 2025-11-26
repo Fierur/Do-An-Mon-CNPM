@@ -95,20 +95,8 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                     SessionInfo.TenQuyen = tenQuyen;
                     SessionInfo.IsAdmin = isQuanLy; // Kiểm tra theo Role_QuanLy
 
-
-                    // Hiển thị thông báo thành công
-                    //MessageBox.Show(
-                    //    $"Đăng nhập thành công!\n\n" +
-                    //    $"Xin chào: {tenNV}\n" +
-                    //    $"Mã NV: {SessionInfo.MaNV}\n" +
-                    //    $"Quyền: {tenQuyen}",
-                    //    "Thành công",
-                    //    MessageBoxButtons.OK,
-                    //    MessageBoxIcon.Information
-                    //);
-
                     this.Hide();
-                    frmMain mainForm = new frmMain();
+                    frmMenu mainForm = new frmMenu();
                     mainForm.FormClosed += (s, args) => this.Close();
                     mainForm.Show();
                 }
