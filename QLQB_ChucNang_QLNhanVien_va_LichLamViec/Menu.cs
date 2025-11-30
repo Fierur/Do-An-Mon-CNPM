@@ -41,6 +41,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 btnCaLam.Visible = false;
                 btnQLKho.Visible = false;
                 btnXemPhieuNhap.Visible = false;
+                btnNhapHang.Visible = false;
 
                 // Có thể cho phép nhân viên xem bàn và hóa đơn
                 // btnQLBanHoaDon.Enabled = true;
@@ -52,6 +53,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 btnCaLam.Visible = false;
                 btnQLKho.Visible = false;
                 btnQLBanHoaDon.Visible = false;
+                btnNhapHang.Visible = false;
             }
             if (SessionInfo.MaQuyen == "Q05")
             {
@@ -60,44 +62,13 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 btnCaLam.Visible = false;
                 btnQLKho.Visible = false;
                 btnQLBanHoaDon.Visible = false;
+                btnNhapHang.Visible = false;
             }
             
         }
 
         #region Event Handlers cho các nút menu
-        private void btnXemPhieuNhap_Click(object sender, EventArgs e)
-        {
-            //try
-            //{
-            //    // Hiển thị form nhập mã phiếu nhập
-            //    using (FormNhapMaPhieuNhap formNhapMa = new FormNhapMaPhieuNhap())
-            //    {
-            //        if (formNhapMa.ShowDialog() == DialogResult.OK)
-            //        {
-            //            string maPhieuNhap = formNhapMa.MaPhieuNhap;
-
-            //            if (!string.IsNullOrEmpty(maPhieuNhap))
-            //            {
-            //                // Mở form chi tiết phiếu nhập
-            //                FormChiTietPhieuNhap formCT = new FormChiTietPhieuNhap(
-            //                    maPhieuNhap,
-            //                    DatabaseConnection.ConnectionString);
-            //                formCT.ShowDialog();
-            //            }
-            //            else
-            //            {
-            //                MessageBox.Show("Vui lòng nhập mã phiếu nhập!", "Cảnh báo",
-            //                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //            }
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Lỗi mở form chi tiết phiếu nhập: " + ex.Message, "Lỗi",
-            //        MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //}
-        }
+        
         private void btnQLNhanVien_Click(object sender, EventArgs e)
         {
             // Mở form Main
@@ -209,7 +180,26 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        private void btnNhapHang_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Mở form Quản lý nhập hàng
+                QuanLyNhapHang formNhapHang = new QuanLyNhapHang();
+                formNhapHang.Show();
+                this.Hide();
 
+                formNhapHang.FormClosed += (s, args) =>
+                {
+                    this.Show();
+                };
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi mở form Nhập hàng: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         private void btnLogout_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Bạn có chắc muốn đăng xuất?", "Xác nhận",
@@ -252,7 +242,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 btn.Font = new Font(btn.Font.FontFamily, 14F, FontStyle.Bold);
 
                 // Khôi phục màu nền
-                // Bạn có thể lưu màu gốc vào Tag của button để khôi phục chính xác
+                // Có thể lưu màu gốc vào Tag của button để khôi phục chính xác
                 if (btn == btnQLNhanVien)
                     btn.BackColor = Color.FromArgb(52, 152, 219);
                 else if (btn == btnChamCong)
@@ -265,6 +255,8 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                     btn.BackColor = Color.FromArgb(230, 126, 34);
                 else if (btn == btnQLKho)
                     btn.BackColor = Color.FromArgb(26, 188, 156);
+                else if (btn == btnNhapHang)
+                    btn.BackColor = Color.FromArgb(180, 100, 50);
             }
         }
 

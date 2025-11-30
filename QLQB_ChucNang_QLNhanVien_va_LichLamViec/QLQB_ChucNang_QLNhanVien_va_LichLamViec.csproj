@@ -96,6 +96,12 @@
     <Compile Include="QuanLyHoaDon.Designer.cs">
       <DependentUpon>QuanLyHoaDon.cs</DependentUpon>
     </Compile>
+    <Compile Include="QuanLyNhapHang.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="QuanLyNhapHang.Designer.cs">
+      <DependentUpon>QuanLyNhapHang.cs</DependentUpon>
+    </Compile>
     <Compile Include="TinhLuongDialog.cs">
       <SubType>Form</SubType>
     </Compile>

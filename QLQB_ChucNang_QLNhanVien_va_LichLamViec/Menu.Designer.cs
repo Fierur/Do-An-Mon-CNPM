@@ -25,6 +25,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         private System.Windows.Forms.Button btnQLBanHoaDon;
         private System.Windows.Forms.Button btnQLKho;
         private System.Windows.Forms.Button btnXemPhieuNhap;
+        private System.Windows.Forms.Button btnNhapHang;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -51,6 +52,8 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.lblTitle = new System.Windows.Forms.Label();
             this.lblWelcome = new System.Windows.Forms.Label();
             this.btnLogout = new System.Windows.Forms.Button();
+            this.lblIcon = new System.Windows.Forms.Label();
+            this.lblTitle1 = new System.Windows.Forms.Label();
             this.pnlMain = new System.Windows.Forms.Panel();
             this.btnQLNhanVien = new System.Windows.Forms.Button();
             this.btnChamCong = new System.Windows.Forms.Button();
@@ -58,7 +61,8 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnCaLam = new System.Windows.Forms.Button();
             this.btnQLBanHoaDon = new System.Windows.Forms.Button();
             this.btnQLKho = new System.Windows.Forms.Button();
-            //this.btnXemPhieuNhap = new System.Windows.Forms.Button();
+            this.btnNhapHang = new System.Windows.Forms.Button();
+            this.btnXemPhieuNhap = new System.Windows.Forms.Button();
             this.pnlHeader.SuspendLayout();
             this.pnlMain.SuspendLayout();
             this.SuspendLayout();
@@ -69,6 +73,8 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.pnlHeader.Controls.Add(this.lblTitle);
             this.pnlHeader.Controls.Add(this.lblWelcome);
             this.pnlHeader.Controls.Add(this.btnLogout);
+            this.pnlHeader.Controls.Add(this.lblIcon);
+            this.pnlHeader.Controls.Add(this.lblTitle1);
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
@@ -77,21 +83,14 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             // 
             // lblTitle
             // 
-            Label lblIcon = new Label();
-            lblIcon.Text = "🍹";
-            lblIcon.Font = new Font("Segoe UI Emoji", 28F);
-            lblIcon.AutoSize = true;
-            lblIcon.Location = new Point(30, 18);
-            pnlHeader.Controls.Add(lblIcon);
-
-            // Title riêng
-            Label lblTitle1 = new Label();
-            lblTitle.Text = "HỆ THỐNG QUẢN LÝ QUÁN BAR";
-            lblTitle.Font = new Font("Segoe UI", 24F, FontStyle.Bold);
-            lblTitle.ForeColor = Color.White;
-            lblTitle.AutoSize = true;
-            lblTitle.Location = new Point(80, 20);
-            pnlHeader.Controls.Add(lblTitle1);
+            this.lblTitle.AutoSize = true;
+            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.ForeColor = System.Drawing.Color.White;
+            this.lblTitle.Location = new System.Drawing.Point(80, 20);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(511, 45);
+            this.lblTitle.TabIndex = 0;
+            this.lblTitle.Text = "HỆ THỐNG QUẢN LÝ QUÁN BAR";
             // 
             // lblWelcome
             // 
@@ -121,6 +120,23 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnLogout.UseVisualStyleBackColor = false;
             this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
             // 
+            // lblIcon
+            // 
+            this.lblIcon.AutoSize = true;
+            this.lblIcon.Font = new System.Drawing.Font("Segoe UI Emoji", 28F);
+            this.lblIcon.Location = new System.Drawing.Point(30, 18);
+            this.lblIcon.Name = "lblIcon";
+            this.lblIcon.Size = new System.Drawing.Size(74, 51);
+            this.lblIcon.TabIndex = 3;
+            this.lblIcon.Text = "🍹";
+            // 
+            // lblTitle1
+            // 
+            this.lblTitle1.Location = new System.Drawing.Point(0, 0);
+            this.lblTitle1.Name = "lblTitle1";
+            this.lblTitle1.Size = new System.Drawing.Size(100, 23);
+            this.lblTitle1.TabIndex = 4;
+            // 
             // pnlMain
             // 
             this.pnlMain.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(240)))), ((int)(((byte)(241)))));
@@ -130,11 +146,12 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.pnlMain.Controls.Add(this.btnCaLam);
             this.pnlMain.Controls.Add(this.btnQLBanHoaDon);
             this.pnlMain.Controls.Add(this.btnQLKho);
+            this.pnlMain.Controls.Add(this.btnNhapHang);
             this.pnlMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMain.Location = new System.Drawing.Point(0, 100);
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Padding = new System.Windows.Forms.Padding(50);
-            this.pnlMain.Size = new System.Drawing.Size(1200, 600);
+            this.pnlMain.Size = new System.Drawing.Size(1200, 713);
             this.pnlMain.TabIndex = 1;
             // 
             // btnQLNhanVien
@@ -145,7 +162,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnQLNhanVien.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnQLNhanVien.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnQLNhanVien.ForeColor = System.Drawing.Color.White;
-            this.btnQLNhanVien.Location = new System.Drawing.Point(100, 80);
+            this.btnQLNhanVien.Location = new System.Drawing.Point(92, 46);
             this.btnQLNhanVien.Name = "btnQLNhanVien";
             this.btnQLNhanVien.Size = new System.Drawing.Size(280, 180);
             this.btnQLNhanVien.TabIndex = 0;
@@ -163,7 +180,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnChamCong.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnChamCong.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnChamCong.ForeColor = System.Drawing.Color.White;
-            this.btnChamCong.Location = new System.Drawing.Point(460, 80);
+            this.btnChamCong.Location = new System.Drawing.Point(452, 46);
             this.btnChamCong.Name = "btnChamCong";
             this.btnChamCong.Size = new System.Drawing.Size(280, 180);
             this.btnChamCong.TabIndex = 1;
@@ -181,7 +198,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnTinhLuong.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnTinhLuong.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnTinhLuong.ForeColor = System.Drawing.Color.White;
-            this.btnTinhLuong.Location = new System.Drawing.Point(820, 80);
+            this.btnTinhLuong.Location = new System.Drawing.Point(812, 46);
             this.btnTinhLuong.Name = "btnTinhLuong";
             this.btnTinhLuong.Size = new System.Drawing.Size(280, 180);
             this.btnTinhLuong.TabIndex = 2;
@@ -199,7 +216,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnCaLam.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCaLam.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCaLam.ForeColor = System.Drawing.Color.White;
-            this.btnCaLam.Location = new System.Drawing.Point(100, 320);
+            this.btnCaLam.Location = new System.Drawing.Point(92, 286);
             this.btnCaLam.Name = "btnCaLam";
             this.btnCaLam.Size = new System.Drawing.Size(280, 180);
             this.btnCaLam.TabIndex = 3;
@@ -217,7 +234,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnQLBanHoaDon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnQLBanHoaDon.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnQLBanHoaDon.ForeColor = System.Drawing.Color.White;
-            this.btnQLBanHoaDon.Location = new System.Drawing.Point(460, 320);
+            this.btnQLBanHoaDon.Location = new System.Drawing.Point(452, 286);
             this.btnQLBanHoaDon.Name = "btnQLBanHoaDon";
             this.btnQLBanHoaDon.Size = new System.Drawing.Size(280, 180);
             this.btnQLBanHoaDon.TabIndex = 4;
@@ -235,7 +252,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnQLKho.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnQLKho.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnQLKho.ForeColor = System.Drawing.Color.White;
-            this.btnQLKho.Location = new System.Drawing.Point(820, 320);
+            this.btnQLKho.Location = new System.Drawing.Point(812, 286);
             this.btnQLKho.Name = "btnQLKho";
             this.btnQLKho.Size = new System.Drawing.Size(280, 180);
             this.btnQLKho.TabIndex = 5;
@@ -244,10 +261,27 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnQLKho.Click += new System.EventHandler(this.btnQLKho_Click);
             this.btnQLKho.MouseEnter += new System.EventHandler(this.MenuButton_MouseEnter);
             this.btnQLKho.MouseLeave += new System.EventHandler(this.MenuButton_MouseLeave);
-            //
-            // Khởi tạo nút Xem Phiếu Nhập
-            //
-            this.btnXemPhieuNhap = new System.Windows.Forms.Button();
+            // 
+            // btnNhapHang
+            // 
+            this.btnNhapHang.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(180)))), ((int)(((byte)(100)))), ((int)(((byte)(50)))));
+            this.btnNhapHang.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnNhapHang.FlatAppearance.BorderSize = 0;
+            this.btnNhapHang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNhapHang.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnNhapHang.ForeColor = System.Drawing.Color.White;
+            this.btnNhapHang.Location = new System.Drawing.Point(452, 516);
+            this.btnNhapHang.Name = "btnNhapHang";
+            this.btnNhapHang.Size = new System.Drawing.Size(280, 180);
+            this.btnNhapHang.TabIndex = 7;
+            this.btnNhapHang.Text = "📥\r\n\r\nNHẬP HÀNG";
+            this.btnNhapHang.UseVisualStyleBackColor = false;
+            this.btnNhapHang.Click += new System.EventHandler(this.btnNhapHang_Click);
+            this.btnNhapHang.MouseEnter += new System.EventHandler(this.MenuButton_MouseEnter);
+            this.btnNhapHang.MouseLeave += new System.EventHandler(this.MenuButton_MouseLeave);
+            // 
+            // btnXemPhieuNhap
+            // 
             this.btnXemPhieuNhap.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(142)))), ((int)(((byte)(68)))), ((int)(((byte)(173)))));
             this.btnXemPhieuNhap.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnXemPhieuNhap.FlatAppearance.BorderSize = 0;
@@ -260,7 +294,6 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             this.btnXemPhieuNhap.TabIndex = 6;
             this.btnXemPhieuNhap.Text = "📋\r\n\r\nXEM PHIẾU NHẬP";
             this.btnXemPhieuNhap.UseVisualStyleBackColor = false;
-            this.btnXemPhieuNhap.Click += new System.EventHandler(this.btnXemPhieuNhap_Click);
             this.btnXemPhieuNhap.MouseEnter += new System.EventHandler(this.MenuButton_MouseEnter);
             this.btnXemPhieuNhap.MouseLeave += new System.EventHandler(this.MenuButton_MouseLeave);
             // 
@@ -268,7 +301,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1200, 700);
+            this.ClientSize = new System.Drawing.Size(1200, 813);
             this.Controls.Add(this.pnlMain);
             this.Controls.Add(this.pnlHeader);
             this.Name = "frmMenu";
@@ -283,5 +316,8 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         }
 
         #endregion
+
+        private Label lblIcon;
+        private Label lblTitle1;
     }
 }
