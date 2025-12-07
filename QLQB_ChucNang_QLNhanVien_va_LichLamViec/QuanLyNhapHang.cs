@@ -41,7 +41,6 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             LoadCanhBao();
             LoadTongGiaTriNhap();
 
-
         }
 
         private void ConfigureDataGridView()
@@ -50,28 +49,32 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             dgvPhieuNhap.ReadOnly = false;
             dgvPhieuNhap.EditMode = DataGridViewEditMode.EditOnEnter;
 
-            // 🔹 Tạo các cột thủ công
             dgvPhieuNhap.Columns.Clear();
             dgvPhieuNhap.AutoGenerateColumns = false;
 
-            // Mã phiếu nhập (ReadOnly)
+            // ✅ Mã phiếu nhập - CHO PHÉP EDIT
             dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "MaPhieuNhap",
                 HeaderText = "Mã Phiếu",
-                ReadOnly = true,
+                ReadOnly = false,
                 Width = 100,
-                DefaultCellStyle = { BackColor = System.Drawing.Color.LightGray }
+                DefaultCellStyle = {
+            BackColor = System.Drawing.Color.White, // Màu trắng = có thể edit
+            ForeColor = System.Drawing.Color.Black
+        }
             });
 
-            // Ngày nhập (ReadOnly)
+            // ✅ Ngày nhập - CHO PHÉP EDIT
             dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "NgayNhap",
                 HeaderText = "Ngày Nhập",
-                ReadOnly = true,
+                ReadOnly = false,
                 Width = 100,
-                DefaultCellStyle = { BackColor = System.Drawing.Color.LightGray }
+                DefaultCellStyle = {
+            BackColor = System.Drawing.Color.White
+        }
             });
 
             // Tên món (Editable - ComboBox)
@@ -90,33 +93,34 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             {
                 Name = "SoLuongNhap",
                 HeaderText = "SL Nhập",
-                Width = 80
+                Width = 80,
+                DefaultCellStyle = { BackColor = System.Drawing.Color.White }
             });
 
-            // Số lượng tồn trước (ReadOnly)
+            // ⚠️ Tồn trước - NÊN ĐỂ READONLY vì tự động tính
             dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "SoLuongTonTruoc",
                 HeaderText = "Tồn Trước",
-                ReadOnly = true,
+                ReadOnly = true, // Giữ readonly
                 Width = 80,
                 DefaultCellStyle = {
-                    BackColor = System.Drawing.Color.LightYellow,
-                    ForeColor = System.Drawing.Color.OrangeRed
-                }
+            BackColor = System.Drawing.Color.LightGray, // Màu xám = không edit được
+            ForeColor = System.Drawing.Color.OrangeRed
+        }
             });
 
-            // Số lượng tồn sau (ReadOnly)
+            // ⚠️ Tồn sau - NÊN ĐỂ READONLY vì tự động tính
             dgvPhieuNhap.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "SoLuongTonSau",
                 HeaderText = "Tồn Sau",
-                ReadOnly = true,
+                ReadOnly = true, // Giữ readonly
                 Width = 80,
                 DefaultCellStyle = {
-                    BackColor = System.Drawing.Color.LightGreen,
-                    ForeColor = System.Drawing.Color.Green
-                }
+            BackColor = System.Drawing.Color.LightGray,
+            ForeColor = System.Drawing.Color.Green
+        }
             });
 
             // Tổng tiền (Editable)
@@ -124,13 +128,45 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             {
                 Name = "TongTien",
                 HeaderText = "Tổng Tiền",
-                Width = 120
+                Width = 120,
+                DefaultCellStyle = { BackColor = System.Drawing.Color.White }
             });
 
-            // 🔹 Đăng ký sự kiện
             dgvPhieuNhap.DefaultValuesNeeded += dgvPhieuNhap_DefaultValuesNeeded;
             dgvPhieuNhap.CellValueChanged += dgvPhieuNhap_CellValueChanged;
             dgvPhieuNhap.CurrentCellDirtyStateChanged += dgvPhieuNhap_CurrentCellDirtyStateChanged;
+            dgvPhieuNhap.RowsAdded += dgvPhieuNhap_RowsAdded;
+        }
+
+        //THÊM PHƯƠNG THỨC MỚI - Tự động cập nhật mã khi có dòng mới
+        private void dgvPhieuNhap_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e)
+        {
+            try
+            {
+                // Chỉ xử lý dòng mới (không phải dòng load từ database)
+                if (e.RowIndex >= 0 && e.RowIndex < dgvPhieuNhap.Rows.Count)
+                {
+                    DataGridViewRow newRow = dgvPhieuNhap.Rows[e.RowIndex];
+
+                    // Kiểm tra xem có phải dòng mới không (chưa có dữ liệu)
+                    if (newRow.Cells["MaPhieuNhap"].Value == null ||
+                        string.IsNullOrEmpty(newRow.Cells["MaPhieuNhap"].Value.ToString()))
+                    {
+                        // Tạo mã phiếu mới
+                        string maMoi = TaoMaPhieuNhapMoi();
+                        newRow.Cells["MaPhieuNhap"].Value = maMoi;
+                        newRow.Cells["NgayNhap"].Value = DateTime.Now.ToString("yyyy-MM-dd");
+                        newRow.Cells["SoLuongNhap"].Value = 0;
+                        newRow.Cells["SoLuongTonTruoc"].Value = 0;
+                        newRow.Cells["SoLuongTonSau"].Value = 0;
+                        newRow.Cells["TongTien"].Value = 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Lỗi cập nhật mã phiếu: " + ex.Message);
+            }
         }
 
         private void dgvPhieuNhap_CurrentCellDirtyStateChanged(object sender, EventArgs e)
@@ -185,28 +221,53 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
         {
             try
             {
+                int maxSoThuTu = 0;
+
+                //BƯỚC 1: Lấy mã lớn nhất từ DATABASE
                 using (SqlConnection conn = DatabaseConnection.OpenConnection())
                 {
                     SqlCommand cmd = new SqlCommand(
                         @"SELECT TOP 1 MaPhieuNhap 
-                          FROM PhieuNhap 
-                          ORDER BY MaPhieuNhap DESC", conn);
+                  FROM PhieuNhap 
+                  ORDER BY MaPhieuNhap DESC", conn);
 
                     object result = cmd.ExecuteScalar();
 
                     if (result != null)
                     {
                         string maCuoi = result.ToString();
-                        // Lấy phần số sau "PN"
                         if (maCuoi.Length > 2)
                         {
-                            int soThuTu = int.Parse(maCuoi.Substring(2)) + 1;
-                            return "PN" + soThuTu.ToString("D3");
+                            maxSoThuTu = int.Parse(maCuoi.Substring(2));
                         }
                     }
-
-                    return "PN001";
                 }
+
+                //BƯỚC 2: Kiểm tra các mã đang có trong DataGridView (chưa lưu vào DB)
+                foreach (DataGridViewRow row in dgvPhieuNhap.Rows)
+                {
+                    if (row.IsNewRow) continue;
+
+                    string maPhieu = row.Cells["MaPhieuNhap"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(maPhieu) && maPhieu.StartsWith("PN"))
+                    {
+                        if (maPhieu.Length > 2)
+                        {
+                            if (int.TryParse(maPhieu.Substring(2), out int soThuTu))
+                            {
+                                if (soThuTu > maxSoThuTu)
+                                {
+                                    maxSoThuTu = soThuTu;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //BƯỚC 3: Tăng số thứ tự lên 1
+                maxSoThuTu++;
+
+                return "PN" + maxSoThuTu.ToString("D3");
             }
             catch (Exception ex)
             {
@@ -222,7 +283,7 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
 
             DataGridViewRow row = dgvPhieuNhap.Rows[e.RowIndex];
 
-            // 🔹 Khi chọn Tên món
+            // Khi chọn Tên món
             if (e.ColumnIndex == dgvPhieuNhap.Columns["TenMon"].Index)
             {
                 string tenMon = row.Cells["TenMon"].Value?.ToString();
@@ -242,7 +303,6 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                             int soLuongTon = Convert.ToInt32(result);
                             row.Cells["SoLuongTonTruoc"].Value = soLuongTon;
 
-                            // Tính tồn sau nếu đã có số lượng nhập
                             int slNhap = 0;
                             if (int.TryParse(row.Cells["SoLuongNhap"].Value?.ToString(), out slNhap))
                             {
@@ -262,13 +322,50 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 }
             }
 
-            // 🔹 Khi nhập Số lượng nhập
+            // Khi nhập Số lượng nhập
             if (e.ColumnIndex == dgvPhieuNhap.Columns["SoLuongNhap"].Index)
             {
                 if (int.TryParse(row.Cells["SoLuongNhap"].Value?.ToString(), out int slNhap) &&
                     int.TryParse(row.Cells["SoLuongTonTruoc"].Value?.ToString(), out int tonTruoc))
                 {
                     row.Cells["SoLuongTonSau"].Value = tonTruoc + slNhap;
+                }
+            }
+
+            // ✅ Khi edit SoLuongTonTruoc - Tự động tính lại SoLuongTonSau
+            if (e.ColumnIndex == dgvPhieuNhap.Columns["SoLuongTonTruoc"].Index)
+            {
+                if (int.TryParse(row.Cells["SoLuongTonTruoc"].Value?.ToString(), out int tonTruoc) &&
+                    int.TryParse(row.Cells["SoLuongNhap"].Value?.ToString(), out int slNhap))
+                {
+                    row.Cells["SoLuongTonSau"].Value = tonTruoc + slNhap;
+                }
+            }
+
+            // ✅ Khi edit MaPhieuNhap - Kiểm tra trùng lặp
+            if (e.ColumnIndex == dgvPhieuNhap.Columns["MaPhieuNhap"].Index)
+            {
+                string maMoi = row.Cells["MaPhieuNhap"].Value?.ToString();
+                if (!string.IsNullOrEmpty(maMoi))
+                {
+                    // Kiểm tra trùng trong DataGridView
+                    int count = 0;
+                    foreach (DataGridViewRow r in dgvPhieuNhap.Rows)
+                    {
+                        if (r.IsNewRow) continue;
+                        if (r.Cells["MaPhieuNhap"].Value?.ToString() == maMoi)
+                        {
+                            count++;
+                        }
+                    }
+
+                    if (count > 1)
+                    {
+                        MessageBox.Show($"⚠️ Mã phiếu '{maMoi}' đã tồn tại!", "Cảnh báo",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        // Tự động tạo mã mới
+                        row.Cells["MaPhieuNhap"].Value = TaoMaPhieuNhapMoi();
+                    }
                 }
             }
         }
@@ -280,30 +377,28 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                 using (SqlConnection conn = DatabaseConnection.OpenConnection())
                 {
                     string query = @"
-                        SELECT 
-                            p.MaPhieuNhap,
-                            CONVERT(VARCHAR(10), p.NgayNhap, 120) AS NgayNhap,
-                            k.TenMon,
-                            ct.SoLuongNhap,
-                            (k.SoLuongTon - ct.SoLuongNhap) AS SoLuongTonTruoc,
-                            k.SoLuongTon AS SoLuongTonSau,
-                            p.TongTien
-                        FROM PhieuNhap p
-                        JOIN Kho k ON p.MaMon = k.MaMon
-                        JOIN ChiTietPN ct ON p.MaPhieuNhap = ct.MaPhieuNhap
-                        ORDER BY p.NgayNhap DESC";
+                SELECT 
+                    p.MaPhieuNhap,
+                    CONVERT(VARCHAR(10), p.NgayNhap, 120) AS NgayNhap,
+                    k.TenMon,
+                    ct.SoLuongNhap,
+                    --Hiển thị SoLuongTon hiện tại, không tính toán
+                    k.SoLuongTon AS SoLuongTonHienTai,
+                    p.TongTien
+                FROM PhieuNhap p
+                JOIN Kho k ON p.MaMon = k.MaMon
+                JOIN ChiTietPN ct ON p.MaPhieuNhap = ct.MaPhieuNhap
+                ORDER BY p.NgayNhap DESC, p.MaPhieuNhap DESC";
 
                     SqlDataAdapter da = new SqlDataAdapter(query, conn);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
 
-                    // 🔹 Xóa dòng cũ (giữ dòng trống để nhập mới)
                     if (dgvPhieuNhap.Columns.Count > 0)
                     {
                         dgvPhieuNhap.Rows.Clear();
                     }
 
-                    // 🔹 Load dữ liệu vào DataGridView
                     foreach (DataRow dr in dt.Rows)
                     {
                         int idx = dgvPhieuNhap.Rows.Add();
@@ -313,8 +408,9 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                         row.Cells["NgayNhap"].Value = dr["NgayNhap"];
                         row.Cells["TenMon"].Value = dr["TenMon"];
                         row.Cells["SoLuongNhap"].Value = dr["SoLuongNhap"];
-                        row.Cells["SoLuongTonTruoc"].Value = dr["SoLuongTonTruoc"];
-                        row.Cells["SoLuongTonSau"].Value = dr["SoLuongTonSau"];
+                        // ✅ Không hiển thị "Tồn Trước" nữa, chỉ hiển thị "Tồn Hiện Tại"
+                        row.Cells["SoLuongTonTruoc"].Value = dr["SoLuongTonHienTai"];
+                        row.Cells["SoLuongTonSau"].Value = dr["SoLuongTonHienTai"];
                         row.Cells["TongTien"].Value = dr["TongTien"];
                     }
                 }
@@ -372,18 +468,275 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             }
         }
 
+        //private void btnThem_Click(object sender, EventArgs e)
+        //{
+        //    int soLuongThemMoi = 0;
+        //    int soLuongBoQua = 0;
+
+        //    try
+        //    {
+        //        using (SqlConnection conn = DBConnect.OpenConnection())
+        //        {
+        //            foreach (DataGridViewRow row in dgvPhieuNhap.Rows)
+        //            {
+        //                // 🔹 Bỏ qua dòng trống hoặc dòng mới
+        //                if (row.IsNewRow) continue;
+
+        //                string maPhieu = row.Cells["MaPhieuNhap"].Value?.ToString();
+        //                string tenMon = row.Cells["TenMon"].Value?.ToString();
+        //                string ngayNhapStr = row.Cells["NgayNhap"].Value?.ToString();
+        //                string slNhapStr = row.Cells["SoLuongNhap"].Value?.ToString();
+        //                string tongTienStr = row.Cells["TongTien"].Value?.ToString();
+
+        //                // 🔹 Kiểm tra dữ liệu đầy đủ
+        //                if (string.IsNullOrEmpty(maPhieu) ||
+        //                    string.IsNullOrEmpty(tenMon) ||
+        //                    string.IsNullOrEmpty(slNhapStr) ||
+        //                    string.IsNullOrEmpty(tongTienStr))
+        //                {
+        //                    soLuongBoQua++;
+        //                    continue;
+        //                }
+
+        //                // 🔹 Kiểm tra xem phiếu đã tồn tại chưa
+        //                SqlCommand checkCmd = new SqlCommand(
+        //                    "SELECT COUNT(*) FROM PhieuNhap WHERE MaPhieuNhap = @MaPhieu", conn);
+        //                checkCmd.Parameters.AddWithValue("@MaPhieu", maPhieu);
+        //                int exists = (int)checkCmd.ExecuteScalar();
+
+        //                if (exists > 0)
+        //                {
+        //                    soLuongBoQua++;
+        //                    continue; // Đã tồn tại, bỏ qua
+        //                }
+
+        //                // 🔹 Validate dữ liệu
+        //                if (!int.TryParse(slNhapStr, out int soLuongNhap) || soLuongNhap <= 0)
+        //                {
+        //                    MessageBox.Show($"Số lượng nhập không hợp lệ ở phiếu {maPhieu}!",
+        //                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //                    continue;
+        //                }
+
+        //                if (!decimal.TryParse(tongTienStr, out decimal tongTien) || tongTien <= 0)
+        //                {
+        //                    MessageBox.Show($"Tổng tiền không hợp lệ ở phiếu {maPhieu}!",
+        //                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //                    continue;
+        //                }
+
+        //                // 🔹 Tính đơn giá
+        //                decimal donGia = tongTien / soLuongNhap;
+
+        //                // 🔹 Lấy MaMon từ TenMon
+        //                string maMon = "";
+        //                SqlCommand getMonCmd = new SqlCommand(
+        //                    "SELECT MaMon FROM Kho WHERE TenMon = @TenMon", conn);
+        //                getMonCmd.Parameters.AddWithValue("@TenMon", tenMon);
+        //                object result = getMonCmd.ExecuteScalar();
+
+        //                if (result == null)
+        //                {
+        //                    MessageBox.Show($"Món '{tenMon}' không tồn tại trong kho!",
+        //                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                    continue;
+        //                }
+        //                maMon = result.ToString();
+
+        //                // 🔹 Parse ngày nhập
+        //                DateTime ngayNhap;
+        //                if (!DateTime.TryParse(ngayNhapStr, out ngayNhap))
+        //                {
+        //                    ngayNhap = DateTime.Now;
+        //                }
+
+        //                // 🔹 Gọi Stored Procedure
+        //                SqlCommand cmd = new SqlCommand("sp_LapPhieuNhapHang", conn);
+        //                cmd.CommandType = CommandType.StoredProcedure;
+        //                cmd.Parameters.AddWithValue("@MaPhieuNhap", maPhieu);
+        //                cmd.Parameters.AddWithValue("@MaMon", maMon);
+        //                cmd.Parameters.AddWithValue("@NgayNhap", ngayNhap);
+        //                cmd.Parameters.AddWithValue("@SoLuongNhap", soLuongNhap);
+        //                cmd.Parameters.AddWithValue("@TenMonNhap", tenMon);
+        //                cmd.Parameters.AddWithValue("@DonGia", donGia);
+
+        //                cmd.ExecuteNonQuery();
+        //                soLuongThemMoi++;
+        //            }
+
+        //            // 🔹 Thông báo kết quả
+        //            string thongBao = $"✅ Hoàn tất lập phiếu nhập!\n\n";
+        //            thongBao += $"• Đã thêm: {soLuongThemMoi} phiếu\n";
+        //            if (soLuongBoQua > 0)
+        //                thongBao += $"• Đã bỏ qua: {soLuongBoQua} dòng";
+
+        //            MessageBox.Show(thongBao, "Thành công",
+        //                MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        //            LoadPhieuNhap();
+        //            LoadCanhBao();
+        //            LoadTongGiaTriNhap();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("❌ Lỗi lập phiếu nhập:\n" + ex.Message,
+        //            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //}
+
+        //private void btnThem_Click(object sender, EventArgs e)
+        //{
+        //    int soLuongThemMoi = 0;
+        //    int soLuongBoQua = 0;
+
+        //    try
+        //    {
+        //        using (SqlConnection conn = DBConnect.OpenConnection())
+        //        {
+        //            foreach (DataGridViewRow row in dgvPhieuNhap.Rows)
+        //            {
+        //                if (row.IsNewRow) continue;
+
+        //                string maPhieu = row.Cells["MaPhieuNhap"].Value?.ToString();
+        //                string tenMon = row.Cells["TenMon"].Value?.ToString();
+        //                string ngayNhapStr = row.Cells["NgayNhap"].Value?.ToString();
+        //                string slNhapStr = row.Cells["SoLuongNhap"].Value?.ToString();
+        //                string tongTienStr = row.Cells["TongTien"].Value?.ToString();
+
+        //                if (string.IsNullOrEmpty(maPhieu) ||
+        //                    string.IsNullOrEmpty(tenMon) ||
+        //                    string.IsNullOrEmpty(slNhapStr) ||
+        //                    string.IsNullOrEmpty(tongTienStr))
+        //                {
+        //                    soLuongBoQua++;
+        //                    continue;
+        //                }
+
+        //                //Validate dữ liệu
+        //                if (!int.TryParse(slNhapStr, out int soLuongNhap) || soLuongNhap <= 0)
+        //                {
+        //                    MessageBox.Show($"Số lượng nhập không hợp lệ ở phiếu {maPhieu}!",
+        //                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //                    continue;
+        //                }
+
+        //                if (!decimal.TryParse(tongTienStr, out decimal tongTien) || tongTien <= 0)
+        //                {
+        //                    MessageBox.Show($"Tổng tiền không hợp lệ ở phiếu {maPhieu}!",
+        //                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //                    continue;
+        //                }
+
+        //                //Tính đơn giá
+        //                decimal donGia = tongTien / soLuongNhap;
+
+        //                //Lấy MaMon từ TenMon
+        //                string maMon = "";
+        //                SqlCommand getMonCmd = new SqlCommand(
+        //                    "SELECT MaMon FROM Kho WHERE TenMon = @TenMon", conn);
+        //                getMonCmd.Parameters.AddWithValue("@TenMon", tenMon);
+        //                object result = getMonCmd.ExecuteScalar();
+
+        //                if (result == null)
+        //                {
+        //                    MessageBox.Show($"Món '{tenMon}' không tồn tại trong kho!",
+        //                        "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //                    continue;
+        //                }
+        //                maMon = result.ToString();
+
+        //                //Parse ngày nhập
+        //                DateTime ngayNhap;
+        //                if (!DateTime.TryParse(ngayNhapStr, out ngayNhap))
+        //                {
+        //                    ngayNhap = DateTime.Now;
+        //                }
+
+        //                //KIỂM TRA PHIẾU NHẬP ĐÃ TỒN TẠI CHƯA
+        //                SqlCommand checkPhieuCmd = new SqlCommand(
+        //                    "SELECT COUNT(*) FROM PhieuNhap WHERE MaPhieuNhap = @MaPhieu", conn);
+        //                checkPhieuCmd.Parameters.AddWithValue("@MaPhieu", maPhieu);
+        //                int phieuExists = (int)checkPhieuCmd.ExecuteScalar();
+
+        //                if (phieuExists == 0)
+        //                {
+        //                    //Tạo phiếu nhập mới
+        //                    SqlCommand cmd = new SqlCommand("sp_LapPhieuNhapHang", conn);
+        //                    cmd.CommandType = CommandType.StoredProcedure;
+        //                    cmd.Parameters.AddWithValue("@MaPhieuNhap", maPhieu);
+        //                    cmd.Parameters.AddWithValue("@MaMon", maMon);
+        //                    cmd.Parameters.AddWithValue("@NgayNhap", ngayNhap);
+        //                    cmd.Parameters.AddWithValue("@SoLuongNhap", soLuongNhap);
+        //                    cmd.Parameters.AddWithValue("@TenMonNhap", tenMon);
+        //                    cmd.Parameters.AddWithValue("@DonGia", donGia);
+
+        //                    cmd.ExecuteNonQuery();
+        //                    soLuongThemMoi++;
+        //                }
+        //                else
+        //                {
+        //                    //KIỂM TRA XEM MÓN ĐÃ CÓ TRONG CHI TIẾT CHƯA
+        //                    SqlCommand checkChiTietCmd = new SqlCommand(
+        //                        "SELECT COUNT(*) FROM ChiTietPN WHERE MaPhieuNhap = @MaPhieu AND TenMonNhap = @TenMon", conn);
+        //                    checkChiTietCmd.Parameters.AddWithValue("@MaPhieu", maPhieu);
+        //                    checkChiTietCmd.Parameters.AddWithValue("@TenMon", tenMon);
+        //                    int chiTietExists = (int)checkChiTietCmd.ExecuteScalar();
+
+        //                    if (chiTietExists == 0)
+        //                    {
+        //                        //Thêm chi tiết cho phiếu đã tồn tại
+        //                        SqlCommand cmd = new SqlCommand("sp_ThemChiTietPhieuNhap", conn);
+        //                        cmd.CommandType = CommandType.StoredProcedure;
+        //                        cmd.Parameters.AddWithValue("@MaPhieuNhap", maPhieu);
+        //                        cmd.Parameters.AddWithValue("@SoLuongNhap", soLuongNhap);
+        //                        cmd.Parameters.AddWithValue("@TenMonNhap", tenMon);
+        //                        cmd.Parameters.AddWithValue("@DonGia", donGia);
+
+        //                        cmd.ExecuteNonQuery();
+        //                        soLuongThemMoi++;
+        //                    }
+        //                    else
+        //                    {
+        //                        soLuongBoQua++;
+        //                    }
+        //                }
+        //            }
+
+        //            string thongBao = $"✅ Hoàn tất lập phiếu nhập!\n\n";
+        //            thongBao += $"• Đã thêm: {soLuongThemMoi} chi tiết\n";
+        //            if (soLuongBoQua > 0)
+        //                thongBao += $"• Đã bỏ qua: {soLuongBoQua} dòng (trùng hoặc thiếu dữ liệu)";
+
+        //            MessageBox.Show(thongBao, "Thành công",
+        //                MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        //            LoadPhieuNhap();
+        //            LoadCanhBao();
+        //            LoadTongGiaTriNhap();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("❌ Lỗi lập phiếu nhập:\n" + ex.Message,
+        //            "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //}
+
         private void btnThem_Click(object sender, EventArgs e)
         {
             int soLuongThemMoi = 0;
             int soLuongBoQua = 0;
+            List<int> rowIndicesToClear = new List<int>(); // Lưu index của các dòng đã thêm thành công
 
             try
             {
                 using (SqlConnection conn = DatabaseConnection.OpenConnection())
                 {
-                    foreach (DataGridViewRow row in dgvPhieuNhap.Rows)
+                    for (int i = 0; i < dgvPhieuNhap.Rows.Count; i++)
                     {
-                        // 🔹 Bỏ qua dòng trống hoặc dòng mới
+                        DataGridViewRow row = dgvPhieuNhap.Rows[i];
+
                         if (row.IsNewRow) continue;
 
                         string maPhieu = row.Cells["MaPhieuNhap"].Value?.ToString();
@@ -392,7 +745,6 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                         string slNhapStr = row.Cells["SoLuongNhap"].Value?.ToString();
                         string tongTienStr = row.Cells["TongTien"].Value?.ToString();
 
-                        // 🔹 Kiểm tra dữ liệu đầy đủ
                         if (string.IsNullOrEmpty(maPhieu) ||
                             string.IsNullOrEmpty(tenMon) ||
                             string.IsNullOrEmpty(slNhapStr) ||
@@ -402,19 +754,6 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                             continue;
                         }
 
-                        // 🔹 Kiểm tra xem phiếu đã tồn tại chưa
-                        SqlCommand checkCmd = new SqlCommand(
-                            "SELECT COUNT(*) FROM PhieuNhap WHERE MaPhieuNhap = @MaPhieu", conn);
-                        checkCmd.Parameters.AddWithValue("@MaPhieu", maPhieu);
-                        int exists = (int)checkCmd.ExecuteScalar();
-
-                        if (exists > 0)
-                        {
-                            soLuongBoQua++;
-                            continue; // Đã tồn tại, bỏ qua
-                        }
-
-                        // 🔹 Validate dữ liệu
                         if (!int.TryParse(slNhapStr, out int soLuongNhap) || soLuongNhap <= 0)
                         {
                             MessageBox.Show($"Số lượng nhập không hợp lệ ở phiếu {maPhieu}!",
@@ -429,10 +768,8 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                             continue;
                         }
 
-                        // 🔹 Tính đơn giá
                         decimal donGia = tongTien / soLuongNhap;
 
-                        // 🔹 Lấy MaMon từ TenMon
                         string maMon = "";
                         SqlCommand getMonCmd = new SqlCommand(
                             "SELECT MaMon FROM Kho WHERE TenMon = @TenMon", conn);
@@ -447,37 +784,95 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
                         }
                         maMon = result.ToString();
 
-                        // 🔹 Parse ngày nhập
                         DateTime ngayNhap;
                         if (!DateTime.TryParse(ngayNhapStr, out ngayNhap))
                         {
                             ngayNhap = DateTime.Now;
                         }
 
-                        // 🔹 Gọi Stored Procedure
-                        SqlCommand cmd = new SqlCommand("sp_LapPhieuNhapHang", conn);
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@MaPhieuNhap", maPhieu);
-                        cmd.Parameters.AddWithValue("@MaMon", maMon);
-                        cmd.Parameters.AddWithValue("@NgayNhap", ngayNhap);
-                        cmd.Parameters.AddWithValue("@SoLuongNhap", soLuongNhap);
-                        cmd.Parameters.AddWithValue("@TenMonNhap", tenMon);
-                        cmd.Parameters.AddWithValue("@DonGia", donGia);
+                        SqlCommand checkPhieuCmd = new SqlCommand(
+                            "SELECT COUNT(*) FROM PhieuNhap WHERE MaPhieuNhap = @MaPhieu", conn);
+                        checkPhieuCmd.Parameters.AddWithValue("@MaPhieu", maPhieu);
+                        int phieuExists = (int)checkPhieuCmd.ExecuteScalar();
 
-                        cmd.ExecuteNonQuery();
-                        soLuongThemMoi++;
+                        bool thanhCong = false;
+
+                        if (phieuExists == 0)
+                        {
+                            SqlCommand cmd = new SqlCommand("sp_LapPhieuNhapHang", conn);
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@MaPhieuNhap", maPhieu);
+                            cmd.Parameters.AddWithValue("@MaMon", maMon);
+                            cmd.Parameters.AddWithValue("@NgayNhap", ngayNhap);
+                            cmd.Parameters.AddWithValue("@SoLuongNhap", soLuongNhap);
+                            cmd.Parameters.AddWithValue("@TenMonNhap", tenMon);
+                            cmd.Parameters.AddWithValue("@DonGia", donGia);
+
+                            cmd.ExecuteNonQuery();
+                            soLuongThemMoi++;
+                            thanhCong = true;
+                        }
+                        else
+                        {
+                            SqlCommand checkChiTietCmd = new SqlCommand(
+                                "SELECT COUNT(*) FROM ChiTietPN WHERE MaPhieuNhap = @MaPhieu AND TenMonNhap = @TenMon", conn);
+                            checkChiTietCmd.Parameters.AddWithValue("@MaPhieu", maPhieu);
+                            checkChiTietCmd.Parameters.AddWithValue("@TenMon", tenMon);
+                            int chiTietExists = (int)checkChiTietCmd.ExecuteScalar();
+
+                            if (chiTietExists == 0)
+                            {
+                                SqlCommand cmd = new SqlCommand("sp_ThemChiTietPhieuNhap", conn);
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.Parameters.AddWithValue("@MaPhieuNhap", maPhieu);
+                                cmd.Parameters.AddWithValue("@SoLuongNhap", soLuongNhap);
+                                cmd.Parameters.AddWithValue("@TenMonNhap", tenMon);
+                                cmd.Parameters.AddWithValue("@DonGia", donGia);
+
+                                cmd.ExecuteNonQuery();
+                                soLuongThemMoi++;
+                                thanhCong = true;
+                            }
+                            else
+                            {
+                                soLuongBoQua++;
+                            }
+                        }
+
+                        // ✅ Nếu thêm thành công, đánh dấu để reset dòng này
+                        if (thanhCong)
+                        {
+                            rowIndicesToClear.Add(i);
+                        }
                     }
 
-                    // 🔹 Thông báo kết quả
+                    // ✅ RESET CÁC DÒNG ĐÃ THÊM THÀNH CÔNG (từ cuối lên đầu để tránh lỗi index)
+                    for (int i = rowIndicesToClear.Count - 1; i >= 0; i--)
+                    {
+                        int rowIndex = rowIndicesToClear[i];
+                        if (rowIndex < dgvPhieuNhap.Rows.Count && !dgvPhieuNhap.Rows[rowIndex].IsNewRow)
+                        {
+                            // Tạo mã phiếu mới cho dòng này
+                            string maMoi = TaoMaPhieuNhapMoi();
+
+                            dgvPhieuNhap.Rows[rowIndex].Cells["MaPhieuNhap"].Value = maMoi;
+                            dgvPhieuNhap.Rows[rowIndex].Cells["NgayNhap"].Value = DateTime.Now.ToString("yyyy-MM-dd");
+                            dgvPhieuNhap.Rows[rowIndex].Cells["TenMon"].Value = null;
+                            dgvPhieuNhap.Rows[rowIndex].Cells["SoLuongNhap"].Value = 0;
+                            dgvPhieuNhap.Rows[rowIndex].Cells["SoLuongTonTruoc"].Value = 0;
+                            dgvPhieuNhap.Rows[rowIndex].Cells["SoLuongTonSau"].Value = 0;
+                            dgvPhieuNhap.Rows[rowIndex].Cells["TongTien"].Value = 0;
+                        }
+                    }
+
                     string thongBao = $"✅ Hoàn tất lập phiếu nhập!\n\n";
-                    thongBao += $"• Đã thêm: {soLuongThemMoi} phiếu\n";
+                    thongBao += $"• Đã thêm: {soLuongThemMoi} chi tiết\n";
                     if (soLuongBoQua > 0)
-                        thongBao += $"• Đã bỏ qua: {soLuongBoQua} dòng";
+                        thongBao += $"• Đã bỏ qua: {soLuongBoQua} dòng (trùng hoặc thiếu dữ liệu)";
 
                     MessageBox.Show(thongBao, "Thành công",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    LoadPhieuNhap();
                     LoadCanhBao();
                     LoadTongGiaTriNhap();
                 }
@@ -532,10 +927,44 @@ namespace QLQB_ChucNang_QLNhanVien_va_LichLamViec
             }
         }
 
+        //Thêm phương thức mới để refresh ComboBox
+        private void RefreshComboBoxMon()
+        {
+            try
+            {
+                //Tìm cột ComboBox trong DataGridView
+                DataGridViewComboBoxColumn colTenMon =
+                    dgvPhieuNhap.Columns["TenMon"] as DataGridViewComboBoxColumn;
+
+                if (colTenMon != null)
+                {
+                    colTenMon.Items.Clear();
+
+                    using (SqlConnection conn = DatabaseConnection.OpenConnection())
+                    {
+                        SqlCommand cmd = new SqlCommand("SELECT TenMon FROM Kho ORDER BY TenMon", conn);
+                        SqlDataReader reader = cmd.ExecuteReader();
+
+                        while (reader.Read())
+                        {
+                            colTenMon.Items.Add(reader["TenMon"].ToString());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi làm mới danh sách món:\n" + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        //Sửa lại btnLamMoi_Click
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
             try
             {
+                RefreshComboBoxMon(); //Thêm dòng này
                 LoadPhieuNhap();
                 LoadCanhBao();
                 LoadTongGiaTriNhap();
